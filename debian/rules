@@ -8,7 +8,8 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 	dh ${@} --parallel
 
 override_dh_auto_configure:
-	./autogen.sh --prefix=/usr --with-gtk=3 --enable-debug --enable-gtk-doc --enable-udisks --disable-silent-rules
+	./autogen.sh
+	dh_auto_configure -- --with-gtk=3 --enable-debug --enable-gtk-doc --enable-udisks --disable-silent-rules
 
 override_dh_auto_install:
 	dh_auto_install
