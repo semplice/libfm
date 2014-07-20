@@ -1,3 +1,9 @@
+libfm-semplice (1.2.1-5) unstable; urgency=medium
+
+  * Rename the -gtk packages to reflect the library name (which is -gtk3, not -gtk).
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Sun, 20 Jul 2014 21:02:16 +0200
+
 libfm-semplice (1.2.1-4) unstable; urgency=medium
 
   * debian/rules: call autogen.sh specifying the gtk version.
