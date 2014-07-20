@@ -1,4 +1,4 @@
-Source: libfm-gtk3
+Source: libfm-semplice
 Section: libs
 Priority: optional
 Maintainer: Eugenio "g7" Paolantonio <me@medesimo.eu>
@@ -17,11 +17,11 @@ Homepage: http://pcmanfm.sourceforge.net/
 Vcs-Browser: https://github.com/semplice/libfm
 Vcs-Git: https://github.com/semplice/libfm.git
 
-Package: libfm-gtk3-4
+Package: libfm-semplice4
 Architecture: any
 Pre-Depends: multiarch-support
-Depends: ${misc:Depends}, ${shlibs:Depends}, libfm-gtk3-data (>= 1.2.0~), lxmenu-data
-Recommends: libfm-gtk3-modules
+Depends: ${misc:Depends}, ${shlibs:Depends}, libfm-semplice-data (>= 1.2.0~), lxmenu-data
+Recommends: libfm-semplice-modules
 Conflicts: libfm4
 Description: file management support (core library)
  LibFM provides file management functions built on top of Glib/GIO,
@@ -40,7 +40,7 @@ Description: file management support (core library)
  .
  This package contains the core library.
 
-Package: libfm-gtk3-extra-4
+Package: libfm-semplice-extra4
 Architecture: any
 Pre-Depends: multiarch-support
 Depends: ${misc:Depends}, ${shlibs:Depends}
@@ -51,12 +51,12 @@ Description: file management support (extra library)
  .
  This package contains standalone library which extends libfm.
 
-Package: libfm-gtk3-dev
+Package: libfm-semplice-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libfm-gtk3-4 (= ${binary:Version}),
- libfm-gtk3-extra-4 (= ${binary:Version})
-Suggests: libfm-gtk3-doc
+Depends: ${misc:Depends}, libfm-semplice4 (= ${binary:Version}),
+ libfm-semplice-extra4 (= ${binary:Version})
+Suggests: libfm-semplice-doc
 Conflicts: libfm-dev
 Description: file management support (core development files)
  LibFM provides file management functions built on top of Glib/GIO,
@@ -64,11 +64,11 @@ Description: file management support (core development files)
  .
  This package contains the development files for GUI-independent build.
 
-Package: libfm-gtk3-gtk-dev
+Package: libfm-semplice-gtk-dev
 Section: libdevel
 Architecture: any
-Depends: ${misc:Depends}, libfm-gtk3-dev (= ${binary:Version}),
- libfm-gtk3-gtk-4 (= ${binary:Version})
+Depends: ${misc:Depends}, libfm-semplice-dev (= ${binary:Version}),
+ libfm-semplice-gtk4 (= ${binary:Version})
 Conflicts: libfm-gtk-dev
 Description: file management support (GTK+ GUI development files)
  LibFM provides file management functions built on top of Glib/GIO,
@@ -76,7 +76,7 @@ Description: file management support (GTK+ GUI development files)
  .
  This package contains the development files for builds using GTK+ library.
 
-Package: libfm-gtk3-doc
+Package: libfm-semplice-doc
 Section: doc
 Architecture: all
 Depends: ${misc:Depends}
@@ -88,12 +88,12 @@ Description: file management support (development documentation)
  .
  This package contains the development HTML documentation.
 
-Package: libfm-gtk3-dbg
+Package: libfm-semplice-dbg
 Section: debug
 Priority: extra
 Architecture: any
-Depends: ${misc:Depends}, libfm-gtk3-4 (= ${binary:Version}),
- libfm-gtk3-extra-4 (= ${binary:Version})
+Depends: ${misc:Depends}, libfm-semplice4 (= ${binary:Version}),
+ libfm-semplice-extra4 (= ${binary:Version})
 Conflicts: libfm-dbg
 Description: file management support (libfm debug)
  LibFM provides file management functions built on top of Glib/GIO,
@@ -101,11 +101,11 @@ Description: file management support (libfm debug)
  .
  This package contains the debugging symbols for GUI independent library.
 
-Package: libfm-gtk3-gtk-dbg
+Package: libfm-semplice-gtk-dbg
 Section: debug
 Priority: extra
 Architecture: any
-Depends: ${misc:Depends}, libfm-gtk3-gtk-4 (= ${binary:Version})
+Depends: ${misc:Depends}, libfm-semplice-gtk4 (= ${binary:Version})
 Conflicts: libfm-gtk-dbg
 Description: file management support (libfm-gtk debug)
  LibFM provides file management functions built on top of Glib/GIO,
@@ -113,11 +113,11 @@ Description: file management support (libfm-gtk debug)
  .
  This package contains the debugging symbols for GTK+ library.
 
-Package: libfm-gtk3-modules-dbg
+Package: libfm-semplice-modules-dbg
 Section: debug
 Priority: extra
 Architecture: any
-Depends: ${misc:Depends}, libfm-gtk3-modules (= ${binary:Version})
+Depends: ${misc:Depends}, libfm-semplice-modules (= ${binary:Version})
 Conflicts: libfm-modules-dbg
 Description: file management support (libfm-modules debug)
  LibFM provides file management functions built on top of Glib/GIO,
@@ -125,7 +125,7 @@ Description: file management support (libfm-modules debug)
  .
  This package contains the debugging symbols for libfm modules.
 
-Package: libfm-gtk3-data
+Package: libfm-semplice-data
 Section: misc
 Architecture: all
 Depends: ${misc:Depends}
@@ -136,7 +136,7 @@ Description: file management support (common data)
  .
  This package contains the common data of the core library.
 
-Package: libfm-gtk3-gtk-data
+Package: libfm-semplice-gtk-data
 Section: misc
 Architecture: all
 Depends: ${misc:Depends}
@@ -147,20 +147,20 @@ Description: file management support (GTK+ library common data)
  .
  This package contains the common data of the GTK+ library.
 
-Package: libfm-gtk3-gtk-4
+Package: libfm-semplice-gtk4
 Architecture: any
 Pre-Depends: multiarch-support
-Depends: ${misc:Depends}, ${shlibs:Depends}, libfm-gtk3-4 (= ${binary:Version}),
-         libfm-gtk3-gtk-data (>= 1.2.0~)
-Suggests: libfm-gtk3-tools, nautilus-actions
+Depends: ${misc:Depends}, ${shlibs:Depends}, libfm-semplice4 (= ${binary:Version}),
+         libfm-semplice-gtk-data (>= 1.2.0~)
+Suggests: libfm-semplice-tools, nautilus-actions
 Conflicts: libfm-gtk4
 Description: file management support (GTK+ 3.0 GUI library)
  LibFM provides file management functions built on top of Glib/GIO
  giving a convenient higher-level API.
  .
- This package contains the GTK+ version 2.0 GUI.
+ This package contains the GTK+ version 3.0 GUI.
 
-Package: libfm-gtk3-tools
+Package: libfm-semplice-tools
 Section: misc
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
@@ -171,7 +171,7 @@ Description: file management support (utilities)
  .
  This package contains applications libfm-pref-apps and lxshortcut.
 
-Package: libfm-gtk3-modules
+Package: libfm-semplice-modules
 Architecture: any
 Pre-Depends: multiarch-support
 Depends: ${misc:Depends}, ${shlibs:Depends}
