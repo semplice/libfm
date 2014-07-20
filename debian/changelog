@@ -1,3 +1,12 @@
+libfm-semplice (1.2.1-2) unstable; urgency=medium
+
+  * Renamed source again to libfm-semplice, as we will
+    probably do other changes to the source in the future.
+  * debian/rules: as we use the 'git snapshots', ./configure is not
+    there and needs to be generated. So, using directly autogen.sh.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Sun, 20 Jul 2014 17:51:24 +0200
+
 libfm-gtk3 (1.2.1-1+semplice0) unstable; urgency=medium
 
   * Initial upload with the libfm-gtk3 name.
