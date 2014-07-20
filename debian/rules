@@ -8,7 +8,7 @@ export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 	dh ${@} --parallel
 
 override_dh_auto_configure:
-	dh_auto_configure -- --with-gtk=3 --enable-debug --enable-gtk-doc --enable-udisks --disable-silent-rules
+	./autogen.sh --prefix=/usr --with-gtk=3 --enable-debug --enable-gtk-doc --enable-udisks --disable-silent-rules
 
 override_dh_auto_install:
 	dh_auto_install
@@ -28,7 +28,7 @@ override_dh_makeshlibs:
 	dh_makeshlibs -X/modules/
 
 override_dh_strip:
-	dh_strip -plibfm4 -plibfm-extra4 --dbg-package=libfm-dbg
-	dh_strip -plibfm-gtk4 --dbg-package=libfm-gtk-dbg
-	dh_strip -plibfm-modules --dbg-package=libfm-modules-dbg
-	dh_strip -Nlibfm4 -Nlibfm-extra4 -Nlibfm-gtk4 -Nlibfm-modules
+	dh_strip -plibfm-semplice4 -plibfm-semplice-extra4 --dbg-package=libfm-semplice-dbg
+	dh_strip -plibfm-semplice-gtk4 --dbg-package=libfm-semplice-gtk-dbg
+	dh_strip -plibfm-semplice-modules --dbg-package=libfm-semplice-modules-dbg
+	dh_strip -Nlibfm-semplice4 -Nlibfm-semplice-extra4 -Nlibfm-semplice-gtk4 -Nlibfm-semplice-modules
