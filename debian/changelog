@@ -1,3 +1,9 @@
+libfm-gtk3 (1.2.1-1+semplice0) unstable; urgency=medium
+
+  * Initial upload with the libfm-gtk3 name.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Sun, 20 Jul 2014 17:12:21 +0200
+
 libfm (1.2.1-1) unstable; urgency=low
 
   * Remove duplicate "Section: libs" from binary packages.
