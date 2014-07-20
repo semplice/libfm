@@ -1,4 +1,4 @@
-libfm-extra.so.4 libfm-extra4 #MINVER#
+libfm-extra.so.4 libfm-gtk3-extra-4 #MINVER#
  fm_xml_file_finish_parse@Base 1.2.0
  fm_xml_file_get_current_line@Base 1.2.0
  fm_xml_file_get_dtd@Base 1.2.0
