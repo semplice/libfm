@@ -1,3 +1,9 @@
+libfm-semplice (1.2.1-4) unstable; urgency=medium
+
+  * debian/rules: call autogen.sh specifying the gtk version.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Sun, 20 Jul 2014 20:15:10 +0200
+
 libfm-semplice (1.2.1-3) unstable; urgency=medium
 
   * debian/rules: revert to dh_auto_configure.
