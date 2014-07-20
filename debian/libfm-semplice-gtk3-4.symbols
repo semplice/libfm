@@ -1,4 +1,4 @@
-libfm-gtk3.so.4 libfm-semplice-gtk4 #MINVER#
+libfm-gtk3.so.4 libfm-semplice-gtk3-4 #MINVER#
  fm_app_chooser_combo_box_dup_selected_app@Base 0.1.99
  fm_app_chooser_combo_box_get_custom_apps@Base 0.1.12
  fm_app_chooser_combo_box_setup@Base 0.1.12
