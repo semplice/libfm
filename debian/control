@@ -23,6 +23,7 @@ Pre-Depends: multiarch-support
 Depends: ${misc:Depends}, ${shlibs:Depends}, libfm-semplice-data (>= 1.2.0~), lxmenu-data
 Recommends: libfm-semplice-modules
 Conflicts: libfm4
+Replaces: libfm4
 Description: file management support (core library)
  LibFM provides file management functions built on top of Glib/GIO,
  giving a convenient higher-level API.
@@ -45,6 +46,7 @@ Architecture: any
 Pre-Depends: multiarch-support
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Conflicts: libfm-extra4
+Replaces: libfm-extra4
 Description: file management support (extra library)
  LibFM provides file management functions built on top of Glib/GIO
  giving a convenient higher-level API.
@@ -58,6 +60,7 @@ Depends: ${misc:Depends}, libfm-semplice4 (= ${binary:Version}),
  libfm-semplice-extra4 (= ${binary:Version})
 Suggests: libfm-semplice-doc
 Conflicts: libfm-dev
+Replaces: libfm-dev
 Description: file management support (core development files)
  LibFM provides file management functions built on top of Glib/GIO,
  giving a convenient higher-level API.
@@ -70,6 +73,7 @@ Architecture: any
 Depends: ${misc:Depends}, libfm-semplice-dev (= ${binary:Version}),
  libfm-semplice-gtk3-4 (= ${binary:Version})
 Conflicts: libfm-gtk-dev
+Replaces: libfm-gtk-dev
 Description: file management support (GTK+ GUI development files)
  LibFM provides file management functions built on top of Glib/GIO,
  giving a convenient higher-level API.
@@ -81,6 +85,7 @@ Section: doc
 Architecture: all
 Depends: ${misc:Depends}
 Conflicts: libfm-doc
+Replaces: libfm-doc
 Recommends: libglib2.0-doc, libgtk-3-doc
 Description: file management support (development documentation)
  LibFM provides file management functions built on top of Glib/GIO,
@@ -107,6 +112,7 @@ Priority: extra
 Architecture: any
 Depends: ${misc:Depends}, libfm-semplice-gtk3-4 (= ${binary:Version})
 Conflicts: libfm-gtk-dbg
+Replaces: libfm-gtk-dbg
 Description: file management support (libfm-gtk3 debug)
  LibFM provides file management functions built on top of Glib/GIO,
  giving a convenient higher-level API.
@@ -119,6 +125,7 @@ Priority: extra
 Architecture: any
 Depends: ${misc:Depends}, libfm-semplice-modules (= ${binary:Version})
 Conflicts: libfm-modules-dbg
+Replaces: libfm-modules-dbg
 Description: file management support (libfm-modules debug)
  LibFM provides file management functions built on top of Glib/GIO,
  giving a convenient higher-level API.
@@ -130,6 +137,7 @@ Section: misc
 Architecture: all
 Depends: ${misc:Depends}
 Conflicts: libfm-data
+Replaces: libfm-data
 Description: file management support (common data)
  LibFM provides file management functions built on top of Glib/GIO,
  giving a convenient higher-level API.
@@ -141,6 +149,7 @@ Section: misc
 Architecture: all
 Depends: ${misc:Depends}
 Conflicts: libfm-gtk-data
+Replaces: libfm-gtk-data
 Description: file management support (GTK+ library common data)
  LibFM provides file management functions built on top of Glib/GIO,
  giving a convenient higher-level API.
@@ -154,6 +163,7 @@ Depends: ${misc:Depends}, ${shlibs:Depends}, libfm-semplice4 (= ${binary:Version
          libfm-semplice-gtk-data (>= 1.2.0~)
 Suggests: libfm-semplice-tools, nautilus-actions
 Conflicts: libfm-gtk4
+Replaces: libfm-gtk4
 Description: file management support (GTK+ 3.0 GUI library)
  LibFM provides file management functions built on top of Glib/GIO
  giving a convenient higher-level API.
@@ -165,6 +175,7 @@ Section: misc
 Architecture: any
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Conflicts: libfm-tools, lxshortcut
+Replaces: libfm-tools, lxshortcut
 Description: file management support (utilities)
  LibFM provides file management functions built on top of Glib/GIO
  giving a convenient higher-level API.
@@ -176,6 +187,7 @@ Architecture: any
 Pre-Depends: multiarch-support
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Conflicts: libfm-modules
+Replaces: libfm-modules
 Description: file management support (loadable modules for library)
  LibFM provides file management functions built on top of Glib/GIO
  giving a convenient higher-level API.
