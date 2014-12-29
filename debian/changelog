@@ -1,3 +1,135 @@
+libfm-semplice (1.2.3+git20141206-1) unstable; urgency=medium
+
+  [ Andriy Grytsenko ]
+  * Fix display name of created shortcut after dropping from another application.
+  * Correctly use parent window screen for context in fm_launch_command_simple().
+
+  [ jleclanche ]
+  * Commit from LXDE Pootle server by user jleclanche.: 1150 of 1565 strings translated (345 need review).
+
+  [ safaalfulaij ]
+  * Commit from LXDE Pootle server by user safaalfulaij.: 1856 of 1565 strings translated (24 need review).
+
+  [ Hong Jen Yee (PCMan) ]
+  * Add KDE archiver "Ark" in archiver integration.
+
+  [ Andriy Grytsenko ]
+  * [SF#887]Use list returned by g_get_system_{config,data}_dirs() in right order.
+  * Add setsid() into child setup after g_spawn_async().
+  * Fix over previous commit: setpgid() should be used instead of setsid().
+  * Don't use $sysconfdir but XDG_CONFIG_DIRS should be used for config load.
+  * Fix possible memory leak in fm_config_load_from_file().
+  * Use g_content_type_guess() always with file name, not just with sample.
+  * [SF#892]When calculate total file sizes in directory, skip filesize of directory.
+  * [SF#895]Use callback read_image_from_file instead of read_image_from_stream for thumbnails.
+  * Update indentation in src/base/fm-thumbnail-loader.c.
+  * [SF#895]Check image sizes and abort loading image if it's Mpx is above thumbnail_max.
+  * [SF#871]Use g_desktop_app_info_new_from_filename() not g_desktop_app_info_new().
+  * ABI bump in preparation for release 1.2.2 (soname 4.0.1 -> 4.0.2).
+  * NEWS file update.
+  * Release 1.2.2.
+  * Fix installation of libfm-extra.pc file for development with it.
+  * Release 1.2.2.1.
+  * Change licence for libfm-extra components from GPL-2 to LGPL-2.1.
+  * Fix crash on dropping URL queries into some folder.
+  * Fix filename on dropping URI queries into folder.
+  * Correct invalid e-mail pcman@debian in Copyright lines.
+  * Disable some debug in XML parser, it spams a lot but it works fine now */
+  * Fix content type detection broken by commit 1b53fe9765e9fdfd56e4ddd91d87b7d04c55650a
+  * Fix incorrect call to g_environ_setenv() in fm_terminal_launch().
+  * Replac deprecated atk_component_get_position calls, fix get_image_position callback.
+  * Satisfy the compiler which thinks a variable can be used uninitialized.
+  * autogen.sh: do not do configure until $DOCONGIGURE is set to non-empty
+  * Change license of LibFM files from GPL-2 to LGPL-2.1.
+  * Disable deprecated atk_focus_tracker_notify() with new libatk.
+
+  [ dforsi ]
+  * Commit from LXDE Pootle server by user dforsi.: 1558 of 1555 strings translated (0 need review).
+
+  [ Recku ]
+  * Commit from LXDE Pootle server by user Recku.: 1565 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user Recku.: 1565 of 1565 strings translated (0 need review).
+
+  [ mbouzada ]
+  * Commit from LXDE Pootle server by user mbouzada.: 1565 of 1565 strings translated (0 need review).
+
+  [ KlemenKosir ]
+  * Commit from LXDE Pootle server by user KlemenKosir.: 1565 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user KlemenKosir.: 1565 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user KlemenKosir.: 1565 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user KlemenKosir.: 1565 of 1565 strings translated (0 need review).
+
+  [ knedlyk ]
+  * Commit from LXDE Pootle server by user admin.: 1509 of 1565 strings translated (1 need review).
+  * Commit from LXDE Pootle server by user admin.: 1565 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user admin.: 1565 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user admin.: 1627 of 1627 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user admin.: 1129 of 1555 strings translated (102 need review).
+
+  [ Andriy Grytsenko ]
+  * Fix installation of headers with parallel install.
+  * If we got notify ID from launch context, we should inform context about failure.
+  * Add compilation notes into README file.
+  * Remove duplicate of fm_file_info_is_dir() declaration.
+  * Add note about thread unsafety on fm_bookmarks_dup() API.
+  * Use linker option '-z defs' if possible to avoid unresolvable symbols.
+  * Fix usage of POSIX.1-2001 declaration `environ' with GLib < 2.28.
+  * Fix "out-of-tree" build (e.g. make distcheck).
+  * Correct menu cache lookup to sync in fm_app_chooser_dlg_dup_selected_app().
+  * Fix launch of applications with %f or %u argument.
+  * Fix distclean in docs/reference/libfm -- it left libfm.types file behind.
+  * libfm-demo: increase scroll update delay from 20 ms to 50 ms.
+  * Fix unneeded fm-folder-config save even if no changes were made.
+  * Fix over 1bb696dd1da5a10db1446e3103024e62fc9ce3fc: it depends on automake setup.
+  * [SF#909]Use G_FILE_MONITOR_EVENT_CHANGED instead of G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT.
+  * [SF#904]Check if g_file_get_basename() returned NULL and don't use it.
+  * Safeguard g_file_get_basename() in fm-templates.c as well.
+  * [SF#911]Fix issue with desktop entry file selected in the Application chooser dialog.
+  * Fix problem with unwanted application substitution in the Application chooser dialog.
+
+  [ Evangelos Foutras ]
+  * Fix default app detection in App chooser combo box
+
+  [ zvacet ]
+  * Commit from LXDE Pootle server by user zvacet.: 1138 of 1565 strings translated (0 need review).
+
+  [ Andriy Grytsenko ]
+  * Yet one more fix in docs/reference/libfm/Makefile.am with DISTCLEANFILES.
+  * Release 1.2.3.
+
+  [ jcsl ]
+  * Commit from LXDE Pootle server by user jcsl.: 1565 of 1565 strings translated (0 need review).
+
+  [ Andriy Grytsenko ]
+  * [SF#902]Handle NULL returned by fm_mime_type_from_native_file() correctly.
+  * Additional fix after previous commit.
+
+  [ Pjotr ]
+  * Commit from LXDE Pootle server by user Pjotr.: 1567 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user Pjotr.: 1568 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user Pjotr.: 1569 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user Pjotr.: 1569 of 1565 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user Pjotr.: 1569 of 1565 strings translated (0 need review).
+
+  [ geosiafis ]
+  * Commit from LXDE Pootle server by user geosiafis.: 1027 of 1555 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user geosiafis.: 1278 of 1555 strings translated (0 need review).
+
+  [ Andriy Grytsenko ]
+  * [l10n] Resync PO files.
+
+  [ sveinki ]
+  * Commit from LXDE Pootle server by user sveinki.: 565 of 1587 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user sveinki.: 1113 of 1587 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user sveinki.: 1182 of 1587 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user sveinki.: 1344 of 1587 strings translated (0 need review).
+  * Commit from LXDE Pootle server by user sveinki.: 1419 of 1587 strings translated (0 need review).
+
+  [ Eugenio Paolantonio (g7) ]
+  * debian/control: add Replaces field to packages.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Mon, 29 Dec 2014 20:15:11 +0100
+
 libfm-semplice (1.2.1-6) unstable; urgency=medium
 
   * debian/rules: fix dh_strip call
