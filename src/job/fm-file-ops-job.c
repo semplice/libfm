@@ -4,20 +4,21 @@
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
  *      Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /**
@@ -660,14 +661,31 @@ static gboolean _fm_file_ops_job_link_run(FmFileOpsJob* job)
     {
         FmPath* path = FM_PATH(l->data);
         char* src = NULL;
-        GFile* dest = g_file_get_child(dest_dir, fm_path_get_basename(path));
+        char *_basename = NULL;
+        const char *basename = fm_path_get_basename(path);
+        GFile* dest;
         GError* err = NULL;
-        char* dname;
+        char* dname = NULL;
 
+        /* if we drop URI query onto native filesystem, omit query part */
+        if (!fm_path_is_native(path) && g_file_is_native(dest_dir))
+            dname = strchr(basename, '?');
+        if (dname)
+        {
+            _basename = g_strndup(basename, dname - basename);
+            dname = strrchr(_basename, G_DIR_SEPARATOR);
+            g_debug("cutting '%s' to '%s'",basename,dname?&dname[1]:_basename);
+            if (dname)
+                basename = &dname[1];
+            else
+                basename = _basename;
+        }
         /* showing currently processed file. */
+        dest = g_file_get_child(dest_dir, basename);
         dname = g_file_get_parse_name(dest);
         fm_file_ops_job_emit_cur_file(job, dname);
         g_free(dname);
+        g_free(_basename);
 
 _retry_link:
         if (fm_path_is_native(path))
@@ -727,12 +745,13 @@ _link_error:
                                                    &err);
             GFile *src_file;
             GFileInfo *inf;
-            char *name, *iname = NULL;
+            char *name = NULL, *iname = NULL;
             if (out == NULL)
                 goto _link_error;
             src_file = fm_path_to_gfile(path);
             inf = g_file_query_info(src_file, G_FILE_ATTRIBUTE_STANDARD_TARGET_URI","
-                                              G_FILE_ATTRIBUTE_STANDARD_ICON,
+                                              G_FILE_ATTRIBUTE_STANDARD_ICON","
+                                              G_FILE_ATTRIBUTE_STANDARD_DISPLAY_NAME,
                                     G_FILE_QUERY_INFO_NONE,
                                     fm_job_get_cancellable(fmjob), NULL);
             g_object_unref(src_file);
@@ -757,11 +776,13 @@ _link_error:
                 }
                 /* FIXME: guess the icon if not available */
                 src = g_strdup(g_file_info_get_attribute_string(inf, G_FILE_ATTRIBUTE_STANDARD_TARGET_URI));
+                name = g_strdup(g_file_info_get_display_name(inf));
                 g_object_unref(inf);
             }
             if (src == NULL)
                 src = fm_path_to_uri(path);
-            name = fm_path_display_basename(path);
+            if (name == NULL)
+                name = fm_path_display_basename(path);
             dname = g_strdup_printf("[Desktop Entry]\n"
                                     "Type=Link\n"
                                     "Name=%s"

@@ -3,20 +3,21 @@
  *
  *      Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /**
@@ -38,6 +39,10 @@
 #include <glib/gi18n-lib.h>
 #include <gio/gdesktopappinfo.h>
 #include <string.h>
+#include <unistd.h>
+#if !GLIB_CHECK_VERSION(2, 28, 0) && !HAVE_DECL_ENVIRON
+extern char **environ;
+#endif
 
 #include "fm-terminal.h"
 #include "fm-config.h"
@@ -252,6 +257,12 @@ FmTerminal* fm_terminal_dup_default(GError **error)
     return term;
 }
 
+static void child_setup(gpointer user_data)
+{
+    /* Move child to grandparent group so it will not die with parent */
+    setpgid(0, (pid_t)(gsize)user_data);
+}
+
 /**
  * fm_terminal_launch
  * @dir: (allow-none): a directory to launch
@@ -302,7 +313,7 @@ gboolean fm_terminal_launch(const gchar *dir, GError **error)
 #endif
     if (dir)
 #if GLIB_CHECK_VERSION(2, 32, 0)
-        g_environ_setenv(envp, "PWD", dir, TRUE);
+        envp = g_environ_setenv(envp, "PWD", dir, TRUE);
 #else
     {
         char **env = envp;
@@ -327,7 +338,8 @@ gboolean fm_terminal_launch(const gchar *dir, GError **error)
         *env = g_strdup_printf ("PWD=%s", dir);
     }
 #endif
-    ret = g_spawn_async(dir, argv, envp, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, error);
+    ret = g_spawn_async(dir, argv, envp, G_SPAWN_SEARCH_PATH,
+                        child_setup, (gpointer)(gsize)getpgid(getppid()), NULL, error);
     g_strfreev(argv);
     g_strfreev(envp);
     return ret;

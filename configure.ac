@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.63])
-AC_INIT([libfm], [1.2.1], [http://pcmanfm.sourceforge.net/])
+AC_INIT([libfm], [1.2.3], [http://pcmanfm.sourceforge.net/])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects no-dist-gzip dist-xz -Wno-portability])
 AC_CONFIG_MACRO_DIR(m4)
 AC_CONFIG_HEADERS([config.h])
@@ -291,6 +291,12 @@ else
     # turn off glib debug checks
     CPPFLAGS="$CPPFLAGS -DG_DISABLE_ASSERT -DG_DISABLE_CHECKS -DG_DISABLE_CAST_CHECKS"
 fi
+
+dnl Check linker flags for modules
+AC_CHECK_LDFLAG(ac_cv_ld_z_defs, [-Wl,-z,defs], LDFLAGS)
+
+dnl Check if OS respects POSIX.1-2001 `environ' declaration
+AC_CHECK_DECLS([environ], [], [], [[#include <unistd.h>]])
 
 dnl Fix invalid sysconfdir when --prefix=/usr
 if test `eval "echo $sysconfdir"` = /usr/etc

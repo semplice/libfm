@@ -1,5 +1,5 @@
 # for use in libtool -version-info
-ABI_VERSION=4:1:0
+ABI_VERSION=4:3:0
 
 NULL=
 
@@ -20,7 +20,6 @@ AM_CPPFLAGS = \
 	-I$(srcdir)/base \
 	-I$(srcdir)/job \
 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
-	-DSYSCONF_DIR=\"@sysconfdir@\" \
 	-Werror-implicit-function-declaration \
 	$(NULL)
 
@@ -154,11 +153,13 @@ libfm_gtk_SOURCES = \
 	gtk/fm-thumbnail.c \
 	$(NULL)
 
+# we use common include directory for all headers
+pkgincludedir = $(includedir)/@PACKAGE@-@FMLIBVER@
+
 if EXTRALIB_ONLY
 pkginclude_HEADERS = $(LIBFM_EXTRA_INCLUDES)
 else
-libfmincludedir = $(includedir)/@PACKAGE@-@FMLIBVER@
-libfminclude_HEADERS = \
+LIBFM_INCLUDES = \
 	fm.h \
 	fm-seal.h \
 	base/fm-app-info.h \
@@ -195,8 +196,7 @@ libfminclude_HEADERS = \
 	job/fm-simple-job.h \
 	$(NULL)
 
-libfmgtkincludedir = $(includedir)/@PACKAGE@-@FMLIBVER@
-libfmgtkinclude_HEADERS = \
+LIBFM_GTK_INCLUDES = \
 	fm-gtk.h \
 	gtk/fm-app-chooser-combo-box.h \
 	gtk/fm-app-chooser-dlg.h \
@@ -237,8 +237,7 @@ pkginclude_HEADERS = \
 	$(NULL)
 endif
 
-libfmextraincludedir = $(includedir)/@PACKAGE@-@FMLIBVER@
-libfmextrainclude_HEADERS = \
+LIBFM_EXTRA_INCLUDES = \
 	fm-extra.h \
 	fm-version.h \
 	extra/fm-xml-file.h \

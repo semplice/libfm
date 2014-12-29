@@ -3,20 +3,21 @@
  *
  *      Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /**
@@ -150,6 +151,10 @@ static FmMimeType *_fm_template_guess_mime_type(FmPath *path, FmMimeType *mime_t
     FmPath *subpath = NULL;
     gchar *filename, *type, *url;
     GKeyFile *kf;
+
+    /* SF bug #902: if file was deleted instantly we get NULL here */
+    if (mime_type == NULL)
+        return NULL;
 
     /* if file is desktop entry then find the real template file path */
     if(mime_type != _fm_mime_type_get_application_x_desktop())
@@ -598,6 +603,8 @@ static void on_dir_changed(GFileMonitor *mon, GFile *gf, GFile *other,
     {
     case G_FILE_MONITOR_EVENT_CHANGED:
         basename = g_file_get_basename(gf);
+        if (basename == NULL)
+            break;
         G_LOCK(templates);
         for(file = dir->files; file; file = file->next_in_dir)
             if(strcmp(fm_path_get_basename(file->path), basename) == 0)
@@ -614,6 +621,8 @@ static void on_dir_changed(GFileMonitor *mon, GFile *gf, GFile *other,
         break;
     case G_FILE_MONITOR_EVENT_DELETED:
         basename = g_file_get_basename(gf);
+        if (basename == NULL)
+            break;
         G_LOCK(templates);
         for(file = dir->files; file; file = file->next_in_dir)
             if(strcmp(fm_path_get_basename(file->path), basename) == 0)
@@ -673,7 +682,8 @@ static void on_dir_changed(GFileMonitor *mon, GFile *gf, GFile *other,
                 g_warning("could not guess type of template %s, ignoring it",
                           basename);
             }
-            fm_mime_type_unref(mime_type);
+            if (G_LIKELY(mime_type))
+                fm_mime_type_unref(mime_type);
         }
         else
             g_debug("templates monitor: duplicate file %s", basename);

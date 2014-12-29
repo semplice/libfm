@@ -1,23 +1,24 @@
 /*
- *      fm-gtk-bookmarks.c
+ *      fm-bookmarks.c
  *
- *      Copyright 2009 PCMan <pcman@debian>
+ *      Copyright 2009 PCMan <pcman.tw@gmail.com>
  *      Copyright 2012-2013 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /**
@@ -211,6 +212,8 @@ static FmBookmarks *fm_bookmarks_new(void)
  *
  * Returns reference to bookmarks list singleton descriptor.
  *
+ * This API is not thread-safe and should be used only in default context.
+ *
  * Return value: (transfer full): a reference to bookmarks list
  *
  * Since: 0.1.99
@@ -376,6 +379,7 @@ FmBookmarkItem* fm_bookmarks_insert(FmBookmarks* bookmarks, FmPath* path, const 
     item->name = g_strdup(name);
     item->n_ref = 1;
     G_LOCK(bookmarks);
+    /* FIXME: disable creation of duplicate bookmark if set in config */
     bookmarks->items = g_list_insert(bookmarks->items, item, pos);
     /* g_debug("insert %s at %d", name, pos); */
     queue_save_bookmarks(bookmarks);

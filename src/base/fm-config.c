@@ -2,22 +2,24 @@
  *      fm-config.c
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2009 Juergen Hoetzel <juergen@archlinux.org>
  *      Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /**
@@ -344,6 +346,7 @@ void fm_config_load_from_file(FmConfig* cfg, const char* name)
     cfg->modules_blacklist = NULL;
     cfg->system_modules_blacklist = NULL;
     _cfg_monitor_free(cfg);
+    g_free(cfg->_cfg_name);
     if(G_LIKELY(!name))
         name = "libfm/libfm.conf";
     else
@@ -362,17 +365,18 @@ void fm_config_load_from_file(FmConfig* cfg, const char* name)
 
     cfg->_cfg_name = g_strdup(name);
     dirs = g_get_system_config_dirs();
-    for(dir=dirs;*dir;++dir)
+    /* bug SF #887: first dir in XDG_CONFIG_DIRS is the most relevant
+       so we shoult process the list in reverse order */
+    dir = dirs;
+    while (*dir)
+        ++dir;
+    while (dir-- != dirs)
     {
         path = g_build_filename(*dir, name, NULL);
         if(g_key_file_load_from_file(kf, path, 0, NULL))
             fm_config_load_from_key_file(cfg, kf);
         g_free(path);
     }
-    path = g_build_filename(SYSCONF_DIR, name, NULL);
-    if(g_key_file_load_from_file(kf, path, 0, NULL))
-        fm_config_load_from_key_file(cfg, kf);
-    g_free(path);
     /* we got all system blacklists, save them and get user's one */
     cfg->system_modules_blacklist = cfg->modules_blacklist;
     cfg->modules_blacklist = NULL;

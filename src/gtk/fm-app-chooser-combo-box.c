@@ -179,8 +179,7 @@ void fm_app_chooser_combo_box_setup(GtkComboBox* combo, FmMimeType* mime_type, G
     {
         data->mime_type = fm_mime_type_ref(mime_type);
         apps = g_app_info_get_all_for_type(fm_mime_type_get_type(data->mime_type));
-        if(apps)
-            sel = G_APP_INFO(apps->data); /* default app is the first one in the list. */
+        sel =  g_app_info_get_default_for_type(fm_mime_type_get_type(data->mime_type), FALSE);
     }
 
     for(l = apps; l; l = l->next)
@@ -205,6 +204,8 @@ void fm_app_chooser_combo_box_setup(GtkComboBox* combo, FmMimeType* mime_type, G
             g_list_foreach(apps, (GFunc)g_object_unref, NULL);
             g_list_free(apps);
         }
+        if(sel)
+            g_object_unref(sel);
     }
 
     gtk_list_store_append(store, &it); /* separator */
@@ -213,7 +214,7 @@ void fm_app_chooser_combo_box_setup(GtkComboBox* combo, FmMimeType* mime_type, G
     /* other applications */
     gtk_list_store_insert_with_values(store, &it, -1,
                        0, NULL,
-                       1, _("Customize"),
+                       1, _("Customize"), // FIXME: should be "Customize..."
                        2, NULL, -1);
     data->other_apps_iter = it;
     gtk_combo_box_set_model(combo, GTK_TREE_MODEL(store));

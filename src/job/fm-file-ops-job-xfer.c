@@ -2,22 +2,24 @@
  *      fm-file-ops-xfer.c
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2012 Vadim Ushakov <igeekless@gmail.com>
  *      Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #ifdef HAVE_CONFIG_H
@@ -721,7 +723,24 @@ gboolean _fm_file_ops_job_copy_run(FmFileOpsJob* job)
                                               -1, NULL, NULL, NULL);
             /* gvfs escapes it itself */
         else /* copy from virtual to native/virtual */
-            tmp_basename = fm_uri_subpath_to_native_subpath(fm_path_get_basename(path), NULL);
+        {
+            /* if we drop URI query onto native filesystem, omit query part */
+            const char *basename = fm_path_get_basename(path);
+            char *sub_name;
+
+            sub_name = strchr(basename, '?');
+            if (sub_name)
+            {
+                sub_name = g_strndup(basename, sub_name - basename);
+                basename = strrchr(sub_name, G_DIR_SEPARATOR);
+                if (basename)
+                    basename++;
+                else
+                    basename = sub_name;
+            }
+            tmp_basename = fm_uri_subpath_to_native_subpath(basename, NULL);
+            g_free(sub_name);
+        }
         dest = g_file_get_child(dest_dir,
                         tmp_basename ? tmp_basename : fm_path_get_basename(path));
         g_free(tmp_basename);

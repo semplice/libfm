@@ -7,17 +7,17 @@ msgstr ""
 "Project-Id-Version: libfm 1.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-01-11 15:20+0200\n"
-"PO-Revision-Date: 2014-02-12 10:28+0000\n"
-"Last-Translator: Радослав <reckku@gmail.com>\n"
+"PO-Revision-Date: 2014-08-12 01:30+0000\n"
+"Last-Translator: Радослав Иванов <reckku@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Pootle 2.5.0\n"
+"X-Generator: Pootle 2.6.0-rc1\n"
 "X-Poedit-Bookmarks: -1,59,-1,-1,-1,-1,-1,-1,-1,-1\n"
-"X-POOTLE-MTIME: 1392200908.0\n"
+"X-POOTLE-MTIME: 1407807014.000000\n"
 
 #: ../data/libfm-pref-apps.desktop.in.h:1 ../data/ui/preferred-apps.glade.h:1
 msgid "Preferred Applications"
@@ -680,8 +680,8 @@ msgid ""
 "character without intending to start an entity - escape ampersand as &amp;"
 msgstr ""
 "Заместващата последователност не завършва с „;“. Най-вероятно сте използвали "
-"„&“, без той да е начало на заместваща последователност. Представете го "
-"като „&amp;“"
+"„&“, без той да е начало на заместваща последователност. Представете го като "
+"„&amp;“"
 
 #: ../src/extra/fm-xml-file.c:594
 msgid "Space isn't allowed in the close tag"
@@ -706,8 +706,7 @@ msgstr "Неправилен знак „%c“ в началото на стой
 #, c-format
 msgid "Invalid char '%c' at end of attribute value, expected '%c'"
 msgstr ""
-"Неправилен знак „%c“ в края на стойността на атрибута, очакваният знак е „%"
-"c“"
+"Неправилен знак „%c“ в края на стойността на атрибута, очакваният знак е „%c“"
 
 #: ../src/extra/fm-xml-file.c:834
 msgid "Document ended unexpectedly"
@@ -726,7 +725,7 @@ msgid "Customize"
 msgstr "Промени"
 
 #: ../src/gtk/fm-app-chooser-dlg.c:266
-#, c-format, c-format
+#, c-format
 msgid "<b>Select an application to open \"%s\" files</b>"
 msgstr "<b>Изберете приложение за отварянето на „%s“ файлове</b>"
 
@@ -793,7 +792,7 @@ msgstr "_Разкриване"
 
 #: ../src/gtk/fm-file-menu.c:161
 msgid "_Add to Bookmarks"
-msgstr "_Добавяне към отметките"
+msgstr "_Добави в Отметки"
 
 #: ../src/gtk/fm-file-menu.c:162
 msgid "_Rename..."
@@ -818,7 +817,7 @@ msgstr "Свой_ства"
 #. Note to translators: Trash in not noun but verb here
 #: ../src/gtk/fm-file-menu.c:265 ../src/gtk/fm-file-menu.c:525
 msgid "Move to _Trash"
-msgstr "П_реместви в Коша"
+msgstr "П_ремести в Коша"
 
 #: ../src/gtk/fm-file-menu.c:773
 msgid "Your bookmarks already have a bookmark for this folder."
@@ -1275,7 +1274,7 @@ msgstr "_Възстановяване"
 
 #. note to translators: resulting string is such as "Deleting files"
 #: ../src/gtk/fm-progress-dlg.c:624
-#, c-format, c-format
+#, c-format
 msgid "%s files"
 msgstr "%s файлове"
 
@@ -1285,13 +1284,13 @@ msgstr "<b>Файловата операция се изпълнява...</b>"
 
 #. note to translators: resulting string is such as "Deleting file"
 #: ../src/gtk/fm-progress-dlg.c:633
-#, c-format, c-format
+#, c-format
 msgid "<b>%s file:</b>"
 msgstr "<b>%s файлове:</b>"
 
 #. note to translators: resulting string is such as "Deleting files"
 #: ../src/gtk/fm-progress-dlg.c:636
-#, c-format, c-format
+#, c-format
 msgid "<b>%s files:</b>"
 msgstr "<b>%s файлове:</b>"
 

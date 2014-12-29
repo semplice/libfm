@@ -2,7 +2,7 @@
  *      fm-app-chooser-dlg.c
  *
  *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- *      Copyright 2012-2013 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
+ *      Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -125,9 +125,8 @@ static GAppInfo* app_info_create_from_commandline(const char *commandline,
             close(fd); /* g_file_set_contents() may fail creating duplicate */
             if(g_file_set_contents(filename, content->str, content->len, NULL))
             {
-                char *fbname = g_path_get_basename(filename);
-                app = G_APP_INFO(g_desktop_app_info_new(fbname));
-                g_free(fbname);
+                /* SF bug #871: new GLib fails on id, have to use filename */
+                app = G_APP_INFO(g_desktop_app_info_new_from_filename(filename));
                 /* if there is mime_type set then created application will be
                    saved for the mime type (see fm_choose_app_for_mime_type()
                    below) but if not then we should remove this temp. file */
@@ -187,27 +186,55 @@ static void on_cmdline_changed(GtkEditable* cmdline, AppChooserData* data)
 
 static gboolean exec_filter_func(const GtkFileFilterInfo *filter_info, gpointer data)
 {
-	if(g_content_type_can_be_executable(filter_info->mime_type))
-		return TRUE;
-	return FALSE;
+    if(g_content_type_can_be_executable(filter_info->mime_type))
+        return TRUE;
+    return FALSE;
 }
 
 static void on_browse_btn_clicked(GtkButton* btn, AppChooserData* data)
 {
-	FmPath* file;
-	GtkFileFilter* filter = gtk_file_filter_new();
-	gtk_file_filter_add_custom(filter,
-		GTK_FILE_FILTER_FILENAME|GTK_FILE_FILTER_MIME_TYPE, exec_filter_func, NULL, NULL);
-	/* gtk_file_filter_set_name(filter, _("Executable files")); */
-	file = fm_select_file(GTK_WINDOW(data->dlg), NULL, "/usr/bin", TRUE, FALSE, filter, NULL);
+    FmPath* file;
+    GtkFileFilter* filter = gtk_file_filter_new();
+    char* binary;
+    gtk_file_filter_add_custom(filter,
+        GTK_FILE_FILTER_FILENAME|GTK_FILE_FILTER_MIME_TYPE, exec_filter_func, NULL, NULL);
+    /* gtk_file_filter_set_name(filter, _("Executable files")); */
+    file = fm_select_file(GTK_WINDOW(data->dlg), NULL, "/usr/bin", TRUE, FALSE, filter, NULL);
 
-	if(file)
-	{
-		char* binary = fm_path_to_str(file);
-		gtk_entry_set_text(data->cmdline, binary);
-		g_free(binary);
-		fm_path_unref(file);
-	}
+    if (file == NULL)
+        return;
+    binary = fm_path_to_str(file);
+    if (g_str_has_suffix(fm_path_get_basename(file), ".desktop"))
+    {
+        GKeyFile *kf = g_key_file_new();
+        GDesktopAppInfo *info;
+        if (g_key_file_load_from_file(kf, binary, 0, NULL) &&
+            (info = g_desktop_app_info_new_from_keyfile(kf)) != NULL)
+            /* it is a valid desktop entry */
+        {
+            /* FIXME: it will duplicate the file, how to avoid that? */
+            gtk_entry_set_text(data->cmdline,
+                               g_app_info_get_commandline(G_APP_INFO(info)));
+            gtk_entry_set_text(data->app_name,
+                               g_app_info_get_name(G_APP_INFO(info)));
+            gtk_toggle_button_set_active(data->use_terminal,
+                                         g_key_file_get_boolean(kf, G_KEY_FILE_DESKTOP_GROUP,
+                                                                G_KEY_FILE_DESKTOP_KEY_TERMINAL,
+                                                                NULL));
+            gtk_toggle_button_set_active(data->keep_open,
+                                         g_key_file_get_boolean(kf, G_KEY_FILE_DESKTOP_GROUP,
+                                                                "X-KeepTerminal",
+                                                                NULL));
+            g_object_unref(info);
+            g_key_file_free(kf);
+            fm_path_unref(file);
+            return;
+        }
+        g_key_file_free(kf);
+    }
+    gtk_entry_set_text(data->cmdline, binary);
+    g_free(binary);
+    fm_path_unref(file);
 }
 
 static void on_use_terminal_changed(GtkToggleButton* btn, AppChooserData* data)
@@ -355,7 +382,7 @@ GAppInfo* fm_app_chooser_dlg_dup_selected_app(GtkDialog* dlg, gboolean* set_defa
 
                 /* FIXME: is there any better way to do this? */
                 /* We need to ensure that no duplicated items are added */
-                if(data->mime_type)
+                if (app_name && app_name[0] && data->mime_type)
                 {
                     MenuCache* menu_cache;
                     /* see if the command is already in the list of known apps for this mime-type */
@@ -381,7 +408,7 @@ GAppInfo* fm_app_chooser_dlg_dup_selected_app(GtkDialog* dlg, gboolean* set_defa
                         goto _out;
 
                     /* see if this command can be found in menu cache */
-                    menu_cache = menu_cache_lookup("applications.menu");
+                    menu_cache = menu_cache_lookup_sync("applications.menu");
                     if(menu_cache)
                     {
 #if MENU_CACHE_CHECK_VERSION(0, 4, 0)

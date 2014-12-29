@@ -2,21 +2,23 @@
  *      fm-deep-count-job.c
  *
  *      Copyright 2009 - 2012 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
+ *      Copyright 2013-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /**
@@ -148,7 +150,9 @@ _retry_stat:
     if( ret == 0 )
     {
         ++job->count;
-        job->total_size += (goffset)st.st_size;
+        /* SF bug #892: dir file size is not relevant in the summary */
+        if (!S_ISDIR(st.st_mode))
+            job->total_size += (goffset)st.st_size;
         job->total_ondisk_size += (st.st_blocks * 512);
 
         /* NOTE: if job->dest_dev is 0, that means our destination
@@ -250,7 +254,9 @@ _retry_query_info:
     descend = TRUE;
 
     ++job->count;
-    job->total_size += g_file_info_get_size(inf);
+    /* SF bug #892: dir file size is not relevant in the summary */
+    if (type != G_FILE_TYPE_DIRECTORY)
+        job->total_size += g_file_info_get_size(inf);
     job->total_ondisk_size += g_file_info_get_attribute_uint64(inf, G_FILE_ATTRIBUTE_STANDARD_ALLOCATED_SIZE);
 
     /* prepare for moving across different devices */

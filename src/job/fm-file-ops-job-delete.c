@@ -2,22 +2,23 @@
  *      fm-file-ops-job-delete.c
  *
  *      Copyright 2009 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- *      Copyright 2012 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
+ *      Copyright 2012,2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #ifdef HAVE_CONFIG_H
@@ -63,9 +64,10 @@ gboolean _fm_file_ops_job_delete_file(FmJob* job, GFile* gf, GFileInfo* inf, FmF
     {
         /* use basename of GFile as display name. */
         char* basename = g_file_get_basename(gf);
-        char* disp = g_filename_display_name(basename);
+        char* disp = basename ? g_filename_display_name(basename) : NULL;
         g_free(basename);
-        fm_file_ops_job_emit_cur_file(fjob, disp);
+                                                        /* FIXME: translate it */
+        fm_file_ops_job_emit_cur_file(fjob, disp ? disp : "(invalid file)");
         g_free(disp);
         ++fjob->finished;
         return FALSE;
@@ -96,7 +98,7 @@ gboolean _fm_file_ops_job_delete_file(FmJob* job, GFile* gf, GFileInfo* inf, FmF
             {
                 /* little trick: basename of trash root is /. */
                 char* basename = g_file_get_basename(gf);
-                if(basename[0] == G_DIR_SEPARATOR)
+                if(basename && basename[0] == G_DIR_SEPARATOR)
                     is_trash_root = TRUE;
                 g_free(basename);
             }
@@ -322,10 +324,11 @@ _retry_trash:
         else
         {
             char* basename = g_file_get_basename(gf);
-            char* disp = g_filename_display_name(basename);
+            char* disp = basename ? g_filename_display_name(basename) : NULL;
             g_free(basename);
             ret = FALSE;
-            fm_file_ops_job_emit_cur_file(job, disp);
+                                                        /* FIXME: translate it */
+            fm_file_ops_job_emit_cur_file(job, disp ? disp : "(invalid file)");
             g_free(disp);
             goto _on_error;
         }
@@ -502,9 +505,10 @@ _retry_get_orig_path:
         else
         {
             char* basename = g_file_get_basename(gf);
-            char* disp = g_filename_display_name(basename);
+            char* disp = basename ? g_filename_display_name(basename) : NULL;
             g_free(basename);
-            fm_file_ops_job_emit_cur_file(job, disp);
+                                                        /* FIXME: translate it */
+            fm_file_ops_job_emit_cur_file(job, disp ? disp : "(invalid file)");
             g_free(disp);
 
             if(err)

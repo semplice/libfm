@@ -2,21 +2,24 @@
  *      fm-mime-type.c
  *
  *      Copyright 2009 - 2012 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
+ *      Copyright 2009 Juergen Hoetzel <juergen@archlinux.org>
+ *      Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 /**
@@ -124,7 +127,8 @@ FmMimeType* fm_mime_type_from_file_name(const char* ufile_name)
  * @base_name: file basename
  * @pstat: (allow-none): file atrributes
  *
- * Finds #FmMimeType descriptor for provided data.
+ * Finds #FmMimeType descriptor for provided data. If file does not exist
+ * then returns %NULL.
  *
  * Before 1.0.0 this API had name fm_mime_type_get_for_native_file.
  *
@@ -186,10 +190,23 @@ FmMimeType* fm_mime_type_from_native_file(const char* file_path,
             */
                 char buf[4096];
                 len = read(fd, buf, MIN(pstat->st_size, 4096));
+                const char *tmp;
                 g_free(type);
-                type = g_content_type_guess(NULL, (guchar*)buf, len, &uncertain);
-            /* #endif */
                 close(fd);
+                type = g_content_type_guess(NULL, (guchar*)buf, len, &uncertain);
+                if (uncertain)
+                {
+                    g_free(type);
+                    type = g_content_type_guess(base_name, (guchar*)buf, len, &uncertain);
+                }
+                /* bug: improperly named desktop entries are detected as text/plain */
+                if (uncertain && len > 40 && (tmp = memchr(buf, '[', 40)) != NULL &&
+                    strncmp(tmp, "[Desktop Entry]\n", 16) == 0)
+                {
+                    g_free(type);
+                    return fm_mime_type_ref(desktop_entry_type);
+                }
+            /* #endif */
             }
         }
         mime_type = fm_mime_type_from_name(type);

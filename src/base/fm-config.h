@@ -2,22 +2,24 @@
  *      fm-config.h
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
+ *      Copyright 2009 Juergen Hoetzel <juergen@archlinux.org>
  *      Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
- *      This program is free software; you can redistribute it and/or modify
- *      it under the terms of the GNU General Public License as published by
- *      the Free Software Foundation; either version 2 of the License, or
- *      (at your option) any later version.
+ *      This file is a part of the Libfm library.
  *
- *      This program is distributed in the hope that it will be useful,
+ *      This library is free software; you can redistribute it and/or
+ *      modify it under the terms of the GNU Lesser General Public
+ *      License as published by the Free Software Foundation; either
+ *      version 2.1 of the License, or (at your option) any later version.
+ *
+ *      This library is distributed in the hope that it will be useful,
  *      but WITHOUT ANY WARRANTY; without even the implied warranty of
- *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *      GNU General Public License for more details.
+ *      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *      Lesser General Public License for more details.
  *
- *      You should have received a copy of the GNU General Public License
- *      along with this program; if not, write to the Free Software
- *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *      MA 02110-1301, USA.
+ *      You should have received a copy of the GNU Lesser General Public
+ *      License along with this library; if not, write to the Free Software
+ *      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 
@@ -107,7 +109,7 @@ typedef enum
  * @small_icon_size: size of small icons
  * @pane_icon_size: size of side pane icons
  * @thumbnail_size: size of thumbnail icons
- * @thumbnail_max: show thumbnails for files smaller than 'thumb_max' KB
+ * @thumbnail_max: show thumbnails only for files not bigger than this, in KB or Kpix
  * @auto_selection_delay: (since 1.2.0) delay for autoselection in single-click mode, in ms
  * @drop_default_action: (since 1.2.0) default action on drop (see #FmDndDestDropAction)
  * @single_click: single click to open file
