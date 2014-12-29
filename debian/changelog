@@ -1,3 +1,9 @@
+libfm-semplice (1.2.3+git20141206-2) unstable; urgency=medium
+
+  * debian/libfm-semplice-dev.install: ship libfm-extra.pc.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Mon, 29 Dec 2014 20:47:22 +0100
+
 libfm-semplice (1.2.3+git20141206-1) unstable; urgency=medium
 
   [ Andriy Grytsenko ]
