@@ -1,3 +1,10 @@
+libfm-semplice (1.2.3+git20141206-4) unstable; urgency=medium
+
+  * Revert "debian/control: do not build-depend on libmenu-cache."
+  * debian/control: don't be strict on libfm-semplice-extra4 dependency.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Tue, 30 Dec 2014 02:42:10 +0100
+
 libfm-semplice (1.2.3+git20141206-3) unstable; urgency=medium
 
   * debian/control: do not build-depend on libmenu-cache.
