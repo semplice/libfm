@@ -1,3 +1,9 @@
+libfm-semplice (1.2.3+git20141206-3) unstable; urgency=medium
+
+  * debian/control: do not build-depend on libmenu-cache.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Tue, 30 Dec 2014 02:22:13 +0100
+
 libfm-semplice (1.2.3+git20141206-2) unstable; urgency=medium
 
   * debian/libfm-semplice-dev.install: ship libfm-extra.pc.
