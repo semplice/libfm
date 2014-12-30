@@ -57,7 +57,7 @@ Package: libfm-semplice-dev
 Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}, libfm-semplice4 (= ${binary:Version}),
- libfm-semplice-extra4 (= ${binary:Version})
+ libfm-semplice-extra4 (= ${binary:Version}) | libfm-extra4 ( >= 1.2.3)
 Suggests: libfm-semplice-doc
 Conflicts: libfm-dev
 Replaces: libfm-dev
@@ -98,7 +98,7 @@ Section: debug
 Priority: extra
 Architecture: any
 Depends: ${misc:Depends}, libfm-semplice4 (= ${binary:Version}),
- libfm-semplice-extra4 (= ${binary:Version})
+ libfm-semplice-extra4 (= ${binary:Version}) | libfm-extra4 (>= 1.2.3)
 Conflicts: libfm-dbg
 Description: file management support (libfm debug)
  LibFM provides file management functions built on top of Glib/GIO,
