@@ -10,8 +10,7 @@ XSBC-Original-Uploaders:
 Build-Depends:
  debhelper (>= 9), autotools-dev, gtk-doc-tools, intltool,
  libdbus-glib-1-dev, libglib2.0-dev, libgtk-3-dev, libexif-dev,
- libmenu-cache-dev (>=0.5.0), libtool, pkg-config, valac,
- libglib2.0-doc, libgtk-3-doc
+ libtool, pkg-config, valac, libglib2.0-doc, libgtk-3-doc
 Standards-Version: 3.9.5
 Homepage: http://pcmanfm.sourceforge.net/
 Vcs-Browser: https://github.com/semplice/libfm
@@ -20,7 +19,7 @@ Vcs-Git: https://github.com/semplice/libfm.git
 Package: libfm-semplice4
 Architecture: any
 Pre-Depends: multiarch-support
-Depends: ${misc:Depends}, ${shlibs:Depends}, libfm-semplice-data (>= 1.2.0~), lxmenu-data
+Depends: ${misc:Depends}, ${shlibs:Depends}, libfm-semplice-data (>= 1.2.0~)
 Recommends: libfm-semplice-modules
 Conflicts: libfm4
 Replaces: libfm4
