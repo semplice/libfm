@@ -1,3 +1,72 @@
+libfm-semplice (1.2.3+git20150624-1) unstable; urgency=medium
+
+  [ Andriy Grytsenko ]
+  * [SF#922]Fix handling %c in desktop entry Exec key.
+
+  [ Hong Jen Yee (PCMan) ]
+  * Avoid generating thumbnails with zero width or height. Add more NULL checking to the thumbnail loader.
+
+  [ Andriy Grytsenko ]
+  * [SF#914] Fix missing folder info update on folder attributes change.
+
+  [ Luís Pereira ]
+  * Use G_SPAWN_DO_NOT_REAP_CHILD on application launch, that should fix a problem with pkexec.
+
+  [ Andriy Grytsenko ]
+  * [SF#946] Add missing newline at end of generated shortcut desktop entry.
+  * [SF#925,938] Improve file type detection, it fails in some cases such as DOCX.
+  * Return back the workaround on thumbnailers which don't save Thumb::MTime.
+  * [SF#937] Fix wrong treating files like ".purple" as having extension "purple".
+  * [SF#935] Fix invalid desktop entry save if 'Cancel' was pressed in dialog.
+  * [SF#915] Always do gtk_drag_finish() in FmDndDest even if drop was failed.
+  * FmDndDest: reset cached data if drag context was changed.
+  * Fix uninitialized data in drag-motion callback of FmPlacesView.
+  * [SF#953] Fix crash in expand_exec_macros() on missing Exec line in desktop entry.
+  * [SF#921] Rewrite broken rubberband rendering in icon view for GTK3.
+  * Eliminate usage of GVolumeMonitor if no FmFolder object was created.
+  * [SF#932] Fix renaming of desktop entries on copy operation error.
+  * Fix dropping files onto applications shortcuts on the desktop.
+  * Fix desktop file name for urxvt in terminals.list.
+  * [SF#954] Add urxvtc data into the terminals.list file.
+  * [SF#950] Fix adding user-defined MIME associations into mimeapps.list config.
+
+  [ Mamoru TASAKA ]
+  * make libfm-pref-apps work with GTK 3.10+
+
+  [ Andriy Grytsenko ]
+  * Fix creating shortcuts on paths with basename started with '?'.
+
+  [ Mamoru TASAKA ]
+  * Make file search dialog work
+
+  [ Andriy Grytsenko ]
+  * [SF#959] Fix autoscroll issues with GTK+ 3 (fix from Mamoru TASAKA).
+  * Fix autoscroll device for GTK3 in gtk/exo/exo-icon-view.c (similarly to the prevoius commit).
+
+  [ Mamoru TASAKA ]
+  * exec-file.glade: remove has_separator property from GtkDialog
+  * choose-icon.ui: remove no longer supported property
+
+  [ Andriy Grytsenko ]
+  * Add 'terminology' (Enlightenment terminal) into the terminals database.
+
+  [ LXDE Pootle ]
+  * Automatic commit from Pootle 2.7.0a1
+
+  [ Andriy Grytsenko ]
+  * [SF#965] Fix stuck tooltip on entering empty folder.
+  * Fix usage of gdk_window_get_device_position() in remaining cases.
+  * Fix crash on cancelling FmDirListJob while retrieving is in progress.
+  * Don't use gtk_get_current_event_state() in the context menu - it will return invalid state.
+  * [SF#919] Fix incomplete cleanup on folder reloading.
+  * Correctly calculate get_size() in FmCellRendererText, not use GTK+ method.
+  * [SF#949] Correct autoscrolling to position in view to not include extra space.
+  * [SF#967] Fix timer shown in progress dialog, it should show 01:00, not 00:60.
+  * [SF#929] Fix stuck tooltip after right-click on file in view, seen rarely.
+  * [SF#969] Disable following symlinked directories on recursive search.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Wed, 01 Jul 2015 17:25:11 +0200
+
 libfm-semplice (1.2.3+git20141206-4) unstable; urgency=medium
 
   * Revert "debian/control: do not build-depend on libmenu-cache."
