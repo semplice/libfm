@@ -2,6 +2,7 @@
  *      fm-app-info.c
  *
  *      Copyright 2010 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
+ *      Copyright 2012-2015 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
  *      This file is a part of the Libfm library.
  *
@@ -88,6 +89,8 @@ static char* expand_exec_macros(GAppInfo* app, const char* full_desktop_path,
     GFile *file = NULL;
     GList *fl = NULL;
 
+    if (exec == NULL)
+        return NULL;
     cmd = g_string_sized_new(1024);
     for(p = exec; *p; ++p)
     {
@@ -134,6 +137,8 @@ static char* expand_exec_macros(GAppInfo* app, const char* full_desktop_path,
                 g_string_append_c(cmd, '%');
                 break;
             case 'i':
+                if (kf == NULL)
+                    break;
                 {
                     char* icon_name = g_key_file_get_locale_string(kf, "Desktop Entry",
                                                                    "Icon", NULL, NULL);
@@ -149,7 +154,11 @@ static char* expand_exec_macros(GAppInfo* app, const char* full_desktop_path,
                 {
                     const char* name = g_app_info_get_name(app);
                     if(name)
-                        g_string_append(cmd, name);
+                    {
+                        char *quoted = g_shell_quote(name);
+                        g_string_append(cmd, quoted);
+                        g_free(quoted);
+                    }
                     break;
                 }
             case 'k':
@@ -200,6 +209,15 @@ static void child_setup(gpointer user_data)
     setpgid(0, data->pgid);
 }
 
+static void child_watch(GPid pid, gint status, gpointer user_data)
+{
+    /*
+     * Ensure that we don't double fork and break pkexec
+     */
+    g_spawn_close_pid(pid);
+}
+
+
 static char* expand_terminal(char* cmd, gboolean keep_open, GError** error)
 {
     FmTerminal* term;
@@ -242,8 +260,18 @@ static gboolean do_launch(GAppInfo* appinfo, const char* full_desktop_path,
     int argc;
     gboolean use_terminal;
     GAppInfoCreateFlags flags;
+    GPid pid;
 
     cmd = expand_exec_macros(appinfo, full_desktop_path, kf, inp, &gfiles);
+    if (cmd == NULL || cmd[0] == '\0')
+    {
+        g_free(cmd);
+        /* FIXME: localize the string below in 1.3.0 */
+        g_set_error_literal(err, G_IO_ERROR, G_IO_ERROR_FAILED,
+                            "Desktop entry contains no valid Exec line");
+        return FALSE;
+    }
+    /* FIXME: do check for TryExec/Exec */
     if(G_LIKELY(kf))
         use_terminal = g_key_file_get_boolean(kf, "Desktop Entry", "Terminal", NULL);
     else
@@ -311,9 +339,12 @@ static gboolean do_launch(GAppInfo* appinfo, const char* full_desktop_path,
 
         data.pgid = getpgid(getppid());
         ret = g_spawn_async(path, argv, NULL,
-                            G_SPAWN_SEARCH_PATH,
-                            child_setup, &data, NULL, err);
-        if (!ret && data.sn_id)
+                            G_SPAWN_SEARCH_PATH | G_SPAWN_DO_NOT_REAP_CHILD,
+                            child_setup, &data, &pid, err);
+        if (ret)
+            /* Ensure that we don't double fork and break pkexec */
+            g_child_watch_add(pid, child_watch, NULL);
+        else if (data.sn_id)
             /* Notify launch context about failure */
             g_app_launch_context_launch_failed(ctx, data.sn_id);
 

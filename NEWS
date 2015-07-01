@@ -1,4 +1,76 @@
-* Fixed crash in templates on file that was deleted instantly after creation.
+* Fixed crash in templates on file that was deleted instantly after
+    creation.
+
+* Fixed handling %c in desktop entry Exec key: launch may fail if the
+    application name contains spaces so it needs quoting.
+
+* Fixed missing folder info update on folder attributes change.
+
+* Use G_SPAWN_DO_NOT_REAP_CHILD on application launch, that should fix
+    a problem with pkexec.
+
+* Corrected missing newline at end of generated shortcut desktop entry.
+
+* Improved file type detection, it failed in some cases such as DOCX.
+
+* Returned back the workaround on thumbnailers which don't save any of
+    Thumb::MTime or Thumb::URI in the thumbnail.
+
+* Fixed wrong treating files like ".purple" as having extension "purple".
+
+* Fixed invalid desktop entry save if 'Cancel' was pressed in the file
+    properties dialog window.
+
+* Fixed issues on dropping folders into Places for bookmarking them.
+
+* Fixed crash in expand_exec_macros() on missing Exec line.
+
+* Rewritten broken rubberband rendering in icon view for GTK3.
+
+* Eliminated usage of GVolumeMonitor if no FmFolder object was created.
+
+* Fixed renaming of desktop entries on copy operation error: it was the
+    file name which was set in renaming dialog but it was compared with
+    display name instead when decided whether "Rename" button should be
+    active or not.
+
+* Fixed dropping files onto applications shortcuts on the desktop: those
+    should be not "inode/x-shortcut" but "application/x-desktop" instead
+    and therefore handled as any other applications, i.e. allow drop.
+
+* Added 'urxvtc' into the terminals database.
+
+* Fixed adding user-defined MIME associations into mimeapps.list config.
+
+* Few UI adaptations to work with GTK+ 3.10 or newer.
+
+* Fixed creating shortcuts on paths with basename started with '?'.
+
+* Fixed pointer-related issues with GTK+ 3.10 or newer.
+
+* Added 'terminology' into the terminals database.
+
+* Fixed stuck tooltip on entering empty folder.
+
+* Fixed crash on cancelling FmDirListJob while retrieving is in progress.
+
+* Fixed incomplete cleanup on folder reloading.
+
+* Corrected autoscrolling to position in view to not include extra space
+    (so not show all the column/row at once but only fully show exactly
+    the item). This may fix a problem with double-click at the end of the
+    file name which is already visible so no scrolling is needed, but if
+    another file in the column/row has longer name then it could bring a
+    scrolling of the column/row, and second click lands out of item area.
+
+* Fixed timer shown in progress dialog, it should show 01:00, not 00:60.
+
+* Fixed stuck tooltip after right-click on file in view, seen rarely.
+
+* Disabled following symlinked directories on recursive search, that may
+    give undesired results duplicating files and in some rare cases even
+    may lead to endless recursion and endless number of files found.
+
 
 Changes on 1.2.3 since 1.2.2:
 

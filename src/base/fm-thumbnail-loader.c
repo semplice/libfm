@@ -2,7 +2,7 @@
  * fm-thumbnail-loader.c
  *
  * Copyright 2010 - 2013 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- * Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
+ * Copyright 2012-2015 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
  * This file is a part of the Libfm library.
  *
@@ -351,6 +351,7 @@ static gboolean is_thumbnail_outdated(GObject* thumb_pix, const char* thumbnail_
     {
         /* if the thumbnail png file does not contain "tEXt::Thumb::MTime" value,
          * we compare the mtime of the thumbnail with its original directly. */
+        /* FIXME: XDG specification requires to regenerate it in such case */
         struct stat statbuf;
         if(stat(thumbnail_path, &statbuf) == 0) /* get mtime of the thumbnail file */
         {
@@ -481,6 +482,7 @@ static gpointer load_thumbnail_thread(gpointer user_data)
                 memcpy( large_basename, md5, 32 );
                 task->large_path = large_path;
             }
+            /* FIXME: support fail/<PRG>/<MD5>.png to skip creation */
 
             if(task->flags & (GENERATE_NORMAL|GENERATE_LARGE))
                 generate_thumbnails(task); /* second cycle */
@@ -851,7 +853,15 @@ static GObject* scale_pix(GObject* ori_pix, int size)
         scaled_pix = (GObject*)g_object_ref(ori_pix);
     }
     else
+    {
+        /* avoid width or height of 0 pixel.
+         * FIXME: or we should just fail creating the thumbnail for the image? */
+        if(new_width == 0)
+            new_width = 1;
+        if(new_height == 0)
+            new_height = 1;
         scaled_pix = backend.scale_image(ori_pix, new_width, new_height);
+    }
 
     return scaled_pix;
 }
@@ -993,7 +1003,7 @@ static gboolean generate_thumbnails_with_builtin(ThumbnailTask* task)
                 g_object_unref(normal_pix);
                 normal_pix = rotated;
             }
-            if(need_save)
+            if(need_save && normal_pix)
                 save_thumbnail_to_disk(task, normal_pix, task->normal_path);
         }
 
@@ -1017,7 +1027,7 @@ static gboolean generate_thumbnails_with_builtin(ThumbnailTask* task)
                 g_object_unref(large_pix);
                 large_pix = rotated;
             }
-            if(need_save)
+            if(need_save && large_pix)
                 save_thumbnail_to_disk(task, large_pix, task->large_path);
         }
         g_object_unref(ori_pix);
@@ -1141,6 +1151,18 @@ static void generate_thumbnails_with_thumbnailers(ThumbnailTask* task)
                 {
                     generated |= GENERATE_NORMAL;
                     normal_pix = backend.read_image_from_file(task->normal_path);
+                    if (normal_pix)
+                    {
+                        char *thumb_mtime = backend.get_image_text(normal_pix, "tEXt::Thumb::MTime");
+                        /* Re-save generated thumbnail to have required data
+                           in them. Some external thumbnailers not follow the
+                           specification and not set any of Thumb::URI nor
+                           Thumb::MTime, that leads to regeneration each time. */
+                        if (thumb_mtime == NULL)
+                            save_thumbnail_to_disk(task, normal_pix, task->normal_path);
+                        else
+                            g_free(thumb_mtime);
+                    }
                 }
             }
             if((task->flags & GENERATE_LARGE) && !(generated & GENERATE_LARGE))
@@ -1149,6 +1171,14 @@ static void generate_thumbnails_with_thumbnailers(ThumbnailTask* task)
                 {
                     generated |= GENERATE_LARGE;
                     large_pix = backend.read_image_from_file(task->large_path);
+                    if (large_pix)
+                    {
+                        char *thumb_mtime = backend.get_image_text(large_pix, "tEXt::Thumb::MTime");
+                        if (thumb_mtime == NULL)
+                            save_thumbnail_to_disk(task, large_pix, task->large_path);
+                        else
+                            g_free(thumb_mtime);
+                    }
                 }
             }
 

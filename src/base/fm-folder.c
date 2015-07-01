@@ -2,7 +2,7 @@
  *      fm-folder.c
  *
  *      Copyright 2009 - 2012 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- *      Copyright 2012-2013 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
+ *      Copyright 2012-2015 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
  *      This file is a part of the Libfm library.
  *
@@ -91,6 +91,7 @@ struct _FmFolder
 };
 
 static void fm_folder_dispose(GObject *object);
+static void fm_folder_finalize(GObject *object);
 static void fm_folder_content_changed(FmFolder* folder);
 
 static GList* _fm_folder_get_file_by_path(FmFolder* folder, FmPath *path);
@@ -99,8 +100,12 @@ G_DEFINE_TYPE(FmFolder, fm_folder, G_TYPE_OBJECT);
 
 static guint signals[N_SIGNALS];
 static GHashTable* hash = NULL;
+static int hash_uses = 0;
 
 static GVolumeMonitor* volume_monitor = NULL;
+
+static void on_mount_added(GVolumeMonitor* vm, GMount* mount, gpointer user_data);
+static void on_mount_removed(GVolumeMonitor* vm, GMount* mount, gpointer user_data);
 
 /* used for on_query_filesystem_info_finished() to lock folder */
 G_LOCK_DEFINE_STATIC(query);
@@ -115,6 +120,7 @@ static void fm_folder_class_init(FmFolderClass *klass)
     FmFolderClass* folder_class;
     g_object_class = G_OBJECT_CLASS(klass);
     g_object_class->dispose = fm_folder_dispose;
+    g_object_class->finalize = fm_folder_finalize;
     fm_folder_parent_class = (GObjectClass*)g_type_class_peek(G_TYPE_OBJECT);
 
     folder_class = FM_FOLDER_CLASS(klass);
@@ -336,6 +342,19 @@ static void fm_folder_class_init(FmFolderClass *klass)
 static void fm_folder_init(FmFolder *folder)
 {
     folder->files = fm_file_info_list_new();
+    G_LOCK(hash);
+    if (G_UNLIKELY(hash_uses == 0))
+    {
+        hash = g_hash_table_new((GHashFunc)fm_path_hash, (GEqualFunc)fm_path_equal);
+        volume_monitor = g_volume_monitor_get();
+        if (G_LIKELY(volume_monitor))
+        {
+            g_signal_connect(volume_monitor, "mount-added", G_CALLBACK(on_mount_added), NULL);
+            g_signal_connect(volume_monitor, "mount-removed", G_CALLBACK(on_mount_removed), NULL);
+        }
+    }
+    hash_uses++;
+    G_UNLOCK(hash);
 }
 
 static gboolean on_idle_reload(FmFolder* folder)
@@ -376,8 +395,12 @@ static void on_file_info_job_finished(FmFileInfoJob* job, FmFolder* folder)
         {
             FmFileInfo* fi = (FmFileInfo*)l->data;
             FmPath* path = fm_file_info_get_path(fi);
-            GList* l2 = _fm_folder_get_file_by_path(folder, path);
-            if(l2) /* the file is already in the folder, update */
+            GList* l2;
+            if (path == fm_file_info_get_path(folder->dir_fi))
+                /* update for folder itself, also see FIXME below! */
+                fm_file_info_update(folder->dir_fi, fi);
+            else if ((l2 = _fm_folder_get_file_by_path(folder, path)))
+                /* the file is already in the folder, update */
             {
                 FmFileInfo* fi2 = (FmFileInfo*)l2->data;
                 /* FIXME: will fm_file_info_update here cause problems?
@@ -665,6 +688,8 @@ static void on_folder_changed(GFileMonitor* mon, GFile* gf, GFile* other, GFileM
         case G_FILE_MONITOR_EVENT_CHANGED:
             folder->pending_change_notify = TRUE;
             G_LOCK(lists);
+            folder->files_to_update = g_slist_append(folder->files_to_update,
+                                                     fm_path_new_for_gfile(gf));
             if(!folder->idle_handler)
                 folder->idle_handler = g_idle_add_full(G_PRIORITY_LOW, (GSourceFunc)on_idle, folder, NULL);
             G_UNLOCK(lists);
@@ -825,7 +850,7 @@ static FmFolder* fm_folder_get_internal(FmPath* path, GFile* gf)
      * to associate all kinds of data structures with FmPaths? */
 
     G_LOCK(hash);
-    folder = (FmFolder*)g_hash_table_lookup(hash, path);
+    folder = hash ? (FmFolder*)g_hash_table_lookup(hash, path) : NULL;
 
     if( G_UNLIKELY(!folder) )
     {
@@ -960,6 +985,27 @@ static void fm_folder_dispose(GObject *object)
     (* G_OBJECT_CLASS(fm_folder_parent_class)->dispose)(object);
 }
 
+static void fm_folder_finalize(GObject *object)
+{
+    G_LOCK(hash);
+    hash_uses--;
+    if (G_UNLIKELY(hash_uses == 0))
+    {
+        g_hash_table_destroy(hash);
+        hash = NULL;
+        if(volume_monitor)
+        {
+            g_signal_handlers_disconnect_by_func(volume_monitor, on_mount_added, NULL);
+            g_signal_handlers_disconnect_by_func(volume_monitor, on_mount_removed, NULL);
+            g_object_unref(volume_monitor);
+            volume_monitor = NULL;
+        }
+    }
+    G_UNLOCK(hash);
+
+    (* G_OBJECT_CLASS(fm_folder_parent_class)->finalize)(object);
+}
+
 /**
  * fm_folder_from_gfile
  * @gf: #GFile file descriptor
@@ -1059,6 +1105,31 @@ void fm_folder_reload(FmFolder* folder)
         /* we need to reload folde info. */
         fm_file_info_unref(folder->dir_fi);
         folder->dir_fi = NULL;
+    }
+
+    /* clear all update-lists now, see SF bug #919 - if update comes before
+       listing job is finished, a duplicate may be created in the folder */
+    if (folder->idle_handler)
+    {
+        g_source_remove(folder->idle_handler);
+        folder->idle_handler = 0;
+        if (folder->files_to_add)
+        {
+            g_slist_foreach(folder->files_to_add, (GFunc)fm_path_unref, NULL);
+            g_slist_free(folder->files_to_add);
+            folder->files_to_add = NULL;
+        }
+        if (folder->files_to_update)
+        {
+            g_slist_foreach(folder->files_to_update, (GFunc)fm_path_unref, NULL);
+            g_slist_free(folder->files_to_update);
+            folder->files_to_update = NULL;
+        }
+        if (folder->files_to_del)
+        {
+            g_slist_free(folder->files_to_del);
+            folder->files_to_del = NULL;
+        }
     }
 
     /* remove all items and re-run a dir list job. */
@@ -1417,8 +1488,11 @@ void fm_folder_query_filesystem_info(FmFolder* folder)
  */
 FmFolder *fm_folder_find_by_path(FmPath *path)
 {
-    FmFolder *folder = (FmFolder*)g_hash_table_lookup(hash, path);
+    FmFolder *folder;
 
+    G_LOCK(hash);
+    folder = hash ? (FmFolder*)g_hash_table_lookup(hash, path) : NULL;
+    G_UNLOCK(hash);
     return folder ? g_object_ref(folder) : NULL;
 }
 
@@ -1605,24 +1679,8 @@ static void on_mount_removed(GVolumeMonitor* vm, GMount* mount, gpointer user_da
 
 void _fm_folder_init()
 {
-    hash = g_hash_table_new((GHashFunc)fm_path_hash, (GEqualFunc)fm_path_equal);
-    volume_monitor = g_volume_monitor_get();
-    if(G_LIKELY(volume_monitor))
-    {
-        g_signal_connect(volume_monitor, "mount-added", G_CALLBACK(on_mount_added), NULL);
-        g_signal_connect(volume_monitor, "mount-removed", G_CALLBACK(on_mount_removed), NULL);
-    }
 }
 
 void _fm_folder_finalize()
 {
-    g_hash_table_destroy(hash);
-    hash = NULL;
-    if(volume_monitor)
-    {
-        g_signal_handlers_disconnect_by_func(volume_monitor, on_mount_added, NULL);
-        g_signal_handlers_disconnect_by_func(volume_monitor, on_mount_removed, NULL);
-        g_object_unref(volume_monitor);
-        volume_monitor = NULL;
-    }
 }

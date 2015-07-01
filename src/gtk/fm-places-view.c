@@ -2,7 +2,7 @@
  *      fm-places-view.c
  *
  *      Copyright 2009 - 2012 Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
- *      Copyright 2012-2013 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
+ *      Copyright 2012-2015 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -247,7 +247,7 @@ static gboolean on_drag_motion (GtkWidget *dest_widget,
     /* fm_drag_context_has_target_name(drag_context, "GTK_TREE_MODEL_ROW"); */
     GdkAtom target;
     GtkTreeViewDropPosition pos;
-    GtkTreePath* tp;
+    GtkTreePath* tp = NULL;
     gboolean ret = FALSE;
     GdkDragAction action = 0;
 
@@ -903,8 +903,12 @@ static void popup_position_func(GtkMenu *menu, gint *x, gint *y,
     gtk_widget_realize(GTK_WIDGET(menu));
     /* get all the relative coordinates */
     gtk_widget_get_allocation(widget, &a);
+    screen = gtk_widget_get_screen(widget);
     gdk_window_get_device_position(gtk_widget_get_window(widget),
-                                   gtk_get_current_event_device(), &x2, &y2, NULL);
+                                   gdk_device_manager_get_client_pointer(
+                                        gdk_display_get_device_manager(
+                                            gdk_screen_get_display(screen))),
+                                   &x2, &y2, NULL);
     gtk_widget_get_allocation(GTK_WIDGET(menu), &ma);
     path = gtk_tree_path_new_from_indices(index, -1);
     gtk_tree_view_get_cell_area(view, path, gtk_tree_view_get_column(view, 0), &cell);
@@ -920,7 +924,6 @@ static void popup_position_func(GtkMenu *menu, gint *x, gint *y,
     *x += a.x + x2;
     *y += a.y + y2;
     /* limit coordinates so menu will be not positioned outside of screen */
-    screen = gtk_widget_get_screen(widget);
     mon = gdk_screen_get_monitor_at_point(screen, *x, *y);
     /* get monitor geometry into the rectangle */
     gdk_screen_get_monitor_geometry(screen, mon, &cell);

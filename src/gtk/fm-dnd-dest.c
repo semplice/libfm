@@ -2,7 +2,7 @@
  *      fm-dnd-dest.c
  *
  *      Copyright 2009 PCMan <pcman.tw@gmail.com>
- *      Copyright 2012-2014 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
+ *      Copyright 2012-2015 Andriy Grytsenko (LStranger) <andrej@rep.kiev.ua>
  *
  *      This program is free software; you can redistribute it and/or modify
  *      it under the terms of the GNU General Public License as published by
@@ -900,8 +900,7 @@ gboolean _on_drag_drop(FmDndDest* dd, GdkDragContext *drag_context,
             else
                 ret = FALSE;
         }
-        if(ret)
-            gtk_drag_finish(drag_context, ret, FALSE, time);
+        gtk_drag_finish(drag_context, ret, FALSE, time);
     }
     return ret;
 }
@@ -949,7 +948,7 @@ GdkDragAction fm_dnd_dest_get_default_action(FmDndDest* dd,
     {
         GdkModifierType mask = 0;
         gdk_window_get_device_position (gtk_widget_get_window(dd->widget),
-                                        gtk_get_current_event_device(),
+                                        gdk_drag_context_get_device(drag_context),
                                         NULL, NULL, &mask);
         mask &= gtk_accelerator_get_default_mod_mask();
         if ((mask & ~GDK_CONTROL_MASK) != 0) /* only "copy" action is allowed */
@@ -976,8 +975,9 @@ GdkDragAction fm_dnd_dest_get_default_action(FmDndDest* dd,
     /* we have no valid data, query it now */
     if(!dd->src_files || dd->context != drag_context)
     {
-        clear_src_cache(dd);
 query_sources:
+        if (dd->context != drag_context)
+            clear_src_cache(dd);
         action = 0;
         if(!dd->waiting_data) /* we're still waiting for "drag-data-received" signal */
         {
@@ -1004,7 +1004,7 @@ query_sources:
             gboolean same_fs;
             GdkModifierType mask = 0;
             gdk_window_get_device_position (gtk_widget_get_window(dd->widget),
-                                            gtk_get_current_event_device(),
+                                            gdk_drag_context_get_device(drag_context),
                                             NULL, NULL, &mask);
             mask &= gtk_accelerator_get_default_mod_mask();
             if(fm_path_is_trash(dest_path))

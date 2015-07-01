@@ -1859,21 +1859,23 @@ exo_icon_view_expose_event (GtkWidget      *widget,
   GtkTreePath            *path;
   GdkRectangle            rubber_rect;
   GdkRectangle            rect;
-  GtkStyle               *style;
-  GdkColor               *fill_color_gdk;
-  guchar                  fill_color_alpha = 0;
   const GList            *lp;
   gint                    dest_index = -1;
 #if !GTK_CHECK_VERSION(3, 0, 0)
+  GdkColor               *fill_color_gdk;
+  guchar                  fill_color_alpha = 0;
   gboolean                rtl;
   gint                    event_area_last;
   GdkRectangle            event_area;
   cairo_t                *cr;
+  GtkStyle               *style;
 
   /* verify that the expose happened on the icon window */
   if (G_UNLIKELY (event->window != priv->bin_window))
     return FALSE;
 #else
+  GtkStyleContext        *style;
+
   if (!gtk_cairo_should_draw_window (cr, priv->bin_window))
     return FALSE;
 #endif
@@ -1976,16 +1978,16 @@ exo_icon_view_expose_event (GtkWidget      *widget,
 #endif
     }
 
+  if (G_UNLIKELY (dest_item != NULL || priv->doing_rubberband))
+#if GTK_CHECK_VERSION(3, 0, 0)
+      style = gtk_widget_get_style_context (widget);
+#else
+      style = gtk_widget_get_style (widget);
+#endif
+
   /* draw the drag indicator */
   if (G_UNLIKELY (dest_item != NULL))
     {
-#if GTK_CHECK_VERSION(3, 0, 0)
-      GtkStyleContext *style = gtk_widget_get_style_context (widget);
-#else
-      GtkStyle *style = gtk_widget_get_style (widget);
-#endif
-      GdkRectangle rect = { 0 };
-
       switch (dest_pos)
         {
         case EXO_ICON_VIEW_DROP_INTO:
@@ -2015,6 +2017,7 @@ exo_icon_view_expose_event (GtkWidget      *widget,
           rect.width = 2;
           rect.height = dest_item->area.height;
         case EXO_ICON_VIEW_NO_DROP:
+          rect.x = rect.y = rect.width = rect.height = 0;
           break;
 
         default:
@@ -2043,7 +2046,6 @@ exo_icon_view_expose_event (GtkWidget      *widget,
       if (gdk_rectangle_intersect (&rubber_rect, &event_area, &rect))
         {
           cr = gdk_cairo_create (event->window);
-#endif
           gtk_widget_style_get (widget,
                                 "selection-box-color", &fill_color_gdk,
                                 "selection-box-alpha", &fill_color_alpha,
@@ -2072,9 +2074,23 @@ exo_icon_view_expose_event (GtkWidget      *widget,
           cairo_set_line_width (cr, 1);
           cairo_stroke (cr);
           gdk_color_free (fill_color_gdk);
-#if !GTK_CHECK_VERSION(3, 0, 0)
           cairo_destroy (cr);
         }
+#else
+      gtk_style_context_save (style);
+      gtk_style_context_add_class (style, GTK_STYLE_CLASS_RUBBERBAND);
+
+      gdk_cairo_rectangle (cr, &rubber_rect);
+      cairo_clip (cr);
+
+      gtk_render_background (style, cr,
+                             rubber_rect.x, rubber_rect.y,
+                             rubber_rect.width, rubber_rect.height);
+      gtk_render_frame (style, cr,
+                        rubber_rect.x, rubber_rect.y,
+                        rubber_rect.width, rubber_rect.height);
+
+      gtk_style_context_restore (style);
 #endif
     }
 
@@ -2659,6 +2675,9 @@ exo_icon_view_button_press_event (GtkWidget      *widget,
 
   if (dirty)
     g_signal_emit (icon_view, icon_view_signals[SELECTION_CHANGED], 0);
+
+  /* SF bug #929: we have to drop prelit state to drop tooltip, see text renderer */
+  icon_view->priv->prelit_item = NULL;
 
   /* release reference that was taken above */
   g_object_unref(widget);
@@ -5170,6 +5189,8 @@ exo_icon_view_scroll_to_item (ExoIconView     *icon_view,
   gint x, y;
   gint focus_width;
   GtkAllocation allocation;
+  GList *lp;
+  GdkRectangle rect;
 
   gtk_widget_style_get (GTK_WIDGET (icon_view),
                         "focus-line-width", &focus_width,
@@ -5178,21 +5199,42 @@ exo_icon_view_scroll_to_item (ExoIconView     *icon_view,
 
   gdk_window_get_position (icon_view->priv->bin_window, &x, &y);
 
-  if (y + item->area.y - focus_width < 0)
+  rect.x = item->area.x;
+  rect.y = item->area.y;
+  rect.width = rect.height = 0;
+  for (lp = icon_view->priv->cell_list; lp != NULL; lp = lp->next)
+    {
+      ExoIconViewCellInfo *info = EXO_ICON_VIEW_CELL_INFO (lp->data);
+      if (G_UNLIKELY (!gtk_cell_renderer_get_visible(info->cell)))
+        continue;
+
+      if (icon_view->priv->orientation == GTK_ORIENTATION_HORIZONTAL)
+        {
+          rect.width += item->box[info->position].width + (info->position > 0 ? icon_view->priv->spacing : 0);
+          rect.height = MAX (rect.height, item->box[info->position].height);
+        }
+      else
+        {
+          rect.width = MAX (rect.width, item->box[info->position].width);
+          rect.height += item->box[info->position].height + (info->position > 0 ? icon_view->priv->spacing : 0);
+        }
+    }
+
+  if (y + rect.y - focus_width < 0)
     gtk_adjustment_set_value (icon_view->priv->vadjustment,
-                              gtk_adjustment_get_value(icon_view->priv->vadjustment) + y + item->area.y - focus_width);
-  else if (y + item->area.y + item->area.height + focus_width > allocation.height)
+                              gtk_adjustment_get_value(icon_view->priv->vadjustment) + y + rect.y - focus_width);
+  else if (y + rect.y + rect.height + focus_width > allocation.height)
     gtk_adjustment_set_value (icon_view->priv->vadjustment,
-                              gtk_adjustment_get_value(icon_view->priv->vadjustment) + y + item->area.y + item->area.height
+                              gtk_adjustment_get_value(icon_view->priv->vadjustment) + y + rect.y + rect.height
                               + focus_width - allocation.height);
 
-  if (x + item->area.x - focus_width < 0)
+  if (x + rect.x - focus_width < 0)
     {
       gtk_adjustment_set_value (icon_view->priv->hadjustment,
-                                gtk_adjustment_get_value(icon_view->priv->hadjustment) + x + item->area.x - focus_width);
+                                gtk_adjustment_get_value(icon_view->priv->hadjustment) + x + rect.x - focus_width);
     }
-  else if (x + item->area.x + item->area.width + focus_width > allocation.width
-        && item->area.width < allocation.width)
+  else if (x + rect.x + rect.width + focus_width > allocation.width
+        && rect.width < allocation.width)
     {
       /* the second condition above is to make sure that we don't scroll horizontally if the item
        * width is larger than the allocation width. Fixes a weird scrolling bug in the compact view.
@@ -5200,7 +5242,7 @@ exo_icon_view_scroll_to_item (ExoIconView     *icon_view,
        */
 
       gtk_adjustment_set_value (icon_view->priv->hadjustment,
-                                gtk_adjustment_get_value(icon_view->priv->hadjustment) + x + item->area.x + item->area.width
+                                gtk_adjustment_get_value(icon_view->priv->hadjustment) + x + rect.x + rect.width
                                 + focus_width - allocation.width);
     }
 
@@ -7048,7 +7090,10 @@ exo_icon_view_autoscroll (ExoIconView *icon_view)
   gfloat value;
   GdkWindow *window = gtk_widget_get_window (GTK_WIDGET (icon_view));
 
-  gdk_window_get_device_position (window, gtk_get_current_event_device(),
+  gdk_window_get_device_position (window,
+                                  gdk_device_manager_get_client_pointer(
+                                        gdk_display_get_device_manager(
+                                            gdk_window_get_display(window))),
                                   &px, &py, NULL);
 #if GTK_CHECK_VERSION(3, 0, 0)
   gdk_window_get_geometry (window, &x, &y, &width, &height);
