@@ -1,3 +1,14 @@
+libfm-semplice (1.2.3+git20150728-1) unstable; urgency=medium
+
+  [ Andriy Grytsenko ]
+  * Don't do duplicate updates for the same folder if update already queued.
+  * [SF#968] Fixed few small issues with icon view interactive search.
+
+  [ Mamoru TASAKA ]
+  * [SF#921] Fix the background of the text of selected file with GTK-3.0.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Fri, 11 Sep 2015 18:47:41 +0200
+
 libfm-semplice (1.2.3+git20150624-1) unstable; urgency=medium
 
   [ Andriy Grytsenko ]
