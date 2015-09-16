@@ -1,3 +1,13 @@
+libfm-semplice (1.2.3+git20150912-1) unstable; urgency=medium
+
+  [ Andriy Grytsenko ]
+  * Fix handling invalid Path= line on launch a desktop entry, it should be ignored.
+
+  [ Eugenio Paolantonio (g7) ]
+  * [patches] Added git:revert-get_size to series.in.
+
+ -- Eugenio Paolantonio (g7) <me@medesimo.eu>  Wed, 16 Sep 2015 11:53:00 +0200
+
 libfm-semplice (1.2.3+git20150728-1) unstable; urgency=medium
 
   [ Andriy Grytsenko ]
